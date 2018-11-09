@@ -42,7 +42,7 @@ resource "null_resource" "generate_acs_engine_deployment" {
 # Locally run the Azure 2.0 CLI to create the resource deployment
 resource "null_resource" "cluster" {
   provisioner "local-exec" {
-    command = "az group deployment create --name ${var.cluster_name} --resource-group ${var.cluster_name}-rg --template-file ./deployments/${var.cluster_name}//acs-engine/azuredeploy.json --parameters @./deployments/${var.cluster_name}//acs-engine/azuredeploy.parameters.json"
+    command = "az group deployment create --name ${var.cluster_name} --resource-group ${var.cluster_name}-rg --template-file ./deployments/${var.cluster_name}/acs-engine/azuredeploy.json --parameters @./deployments/${var.cluster_name}/acs-engine/azuredeploy.parameters.json"
   }
 
   depends_on = ["null_resource.generate_acs_engine_deployment"]
