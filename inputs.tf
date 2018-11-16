@@ -1,5 +1,5 @@
 variable "agent_vm_count" {
-  default = "3"
+  type = "string"
 }
 
 variable "agent_vm_size" {
