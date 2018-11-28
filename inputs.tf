@@ -7,7 +7,7 @@ variable "agent_vm_size" {
 }
 
 variable "kubernetes_version" {
-  default = "1.11.3"
+  default = "1.11.4"
 }
 
 variable "master_vm_count" {

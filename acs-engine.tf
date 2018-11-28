@@ -24,7 +24,7 @@ data "template_file" "acs_engine_config" {
 
 resource "null_resource" "generate_acs_engine_config" {
   provisioner "local-exec" {
-    command = "echo '${data.template_file.acs_engine_config.rendered}' > deployments/${var.cluster_name}/acs-engine-cluster.json"
+    command = "echo '${data.template_file.acs_engine_config.rendered}' > deployment/acs-engine-cluster.json"
   }
 
   depends_on = ["data.template_file.acs_engine_config"]
@@ -33,7 +33,7 @@ resource "null_resource" "generate_acs_engine_config" {
 # Locally run the ACS Engine to produce the Azure Resource Template for the K8s cluster
 resource "null_resource" "generate_acs_engine_deployment" {
   provisioner "local-exec" {
-    command = "acs-engine generate deployments/${var.cluster_name}/acs-engine-cluster.json --output-directory deployments/${var.cluster_name}/acs-engine"
+    command = "acs-engine generate deployment/acs-engine-cluster.json --output-directory deployment/acs-engine"
   }
 
   depends_on = ["null_resource.generate_acs_engine_config"]
@@ -42,7 +42,7 @@ resource "null_resource" "generate_acs_engine_deployment" {
 # Locally run the Azure 2.0 CLI to create the resource deployment
 resource "null_resource" "cluster" {
   provisioner "local-exec" {
-    command = "az group deployment create --name ${var.cluster_name} --resource-group ${var.cluster_name}-rg --template-file ./deployments/${var.cluster_name}/acs-engine/azuredeploy.json --parameters @./deployments/${var.cluster_name}/acs-engine/azuredeploy.parameters.json"
+    command = "az group deployment create --name ${var.cluster_name} --resource-group ${var.cluster_name}-rg --template-file ./deployment/acs-engine/azuredeploy.json --parameters @./deployment/acs-engine/azuredeploy.parameters.json"
   }
 
   depends_on = ["null_resource.generate_acs_engine_deployment"]
@@ -51,7 +51,7 @@ resource "null_resource" "cluster" {
 # Merge k8s config from acs-engine
 resource "null_resource" "kubectl" {
   provisioner "local-exec" {
-    command = "KUBECONFIG=./deployments/${var.cluster_name}/acs-engine/kubeconfig/kubeconfig.${var.location}.json:~/.kube/config kubectl config view --flatten > merged-config && mv merged-config ~/.kube/config"
+    command = "KUBECONFIG=./deployment/acs-engine/kubeconfig/kubeconfig.${var.location}.json:~/.kube/config kubectl config view --flatten > merged-config && mv merged-config ~/.kube/config"
   }
 
   depends_on = ["null_resource.cluster"]
