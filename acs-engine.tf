@@ -1,3 +1,22 @@
+resource "azurerm_resource_group" "cluster" {
+  name     = "${var.cluster_name}-rg"
+  location = "${var.location}"
+}
+
+resource "azurerm_virtual_network" "cluster" {
+  name                = "${var.cluster_name}-vnet"
+  address_space       = ["${var.vnet_address_space}"]
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.cluster.name}"
+}
+
+resource "azurerm_subnet" "cluster" {
+  name                 = "${var.cluster_name}-subnet"
+  resource_group_name  = "${azurerm_resource_group.cluster.name}"
+  address_prefix       = "${var.subnet_address_space}"
+  virtual_network_name = "${azurerm_virtual_network.cluster.name}"
+}
+
 data "template_file" "acs_engine_config" {
   template = "${file("${path.module}/acs-engine-template.json")}"
 
@@ -16,7 +35,7 @@ data "template_file" "acs_engine_config" {
     client_secret = "${var.client_secret}"
 
     dns_prefix      = "${var.cluster_name}"
-    subnet_id       = "${var.cluster_id}"
+    subnet_id       = "${azurerm_subnet.cluster.id}"
     first_master_ip = "${var.first_master_ip}"
     vnet_cidr       = "${var.subnet_address_space}"
   }
