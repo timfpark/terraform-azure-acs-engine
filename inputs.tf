@@ -32,7 +32,5 @@ variable "first_master_ip" {}
 
 variable "cluster_name" {}
 
-variable "cluster_id" {}
-
 variable "client_id" {}
 variable "client_secret" {}
